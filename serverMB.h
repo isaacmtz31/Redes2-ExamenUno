@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include <unistd.h>
 //ESTA FUNCION ES UTIL PARA ASIGAR DE MANERA DINAMICA MEMORIA A LAS MATRICES
 int ** asignaMemoria(int filas, int columnas)
 {
@@ -121,7 +122,7 @@ void limpiar(int** matriz, int colu)
 }
 
 
-
+//GENERAMOS LA MATRIZ CON EL NUMERO DE BOMBAS YESPECIFICADO
 int ** generarMatriz(int dif)
 {
   int ** matriz = NULL;
@@ -147,4 +148,72 @@ int ** generarMatriz(int dif)
   }
 
   return matriz;
+}
+
+//ENVIAMOS LA MATRIZ AL CLIENTE
+int enviarMatriz(int filas, int columnas, int cd, int ** matriz)
+{
+	int aux;
+	int enviados;
+	for(int i = 0; i < filas ; i++)
+	{
+		for(int j = 0; j < columnas; j++)
+		{
+			 aux = ntohl(matriz[i][j]);
+			 enviados = write(cd,&aux,sizeof(aux));
+			 if(enviados < 0)
+			 {
+				 printf("No se pudo enviar la matriz\n");
+				 return -1;
+			 }
+		}
+	}
+}
+
+int escribirPuntuacion(FILE * f, char * score)
+{
+	char * arch1 = "/home/isaacmtz/Documentos/scores.txt";
+	if (f = fopen(arch1, "r+"))
+	{
+		if(fputs(score, f) != -1)
+		{
+			fclose(f);
+			return 1;
+		}
+	}else{
+		printf("Error al abrir el archivo\n");
+		fclose(f);
+		return 0;
+	}
+}
+
+int ganarPerderPuntaje(int statusx, int cd, FILE *f)
+{
+	int n;
+	char usuario[50];
+
+	switch (statusx)
+	{
+		case 1: // GANO //RECIBIMOS EL NOMBRE Y TIEMPO
+			n = read(cd, &usuario, sizeof(usuario));
+			if( n < 0 )
+			{
+				printf("Error al recibir los datos del ganador\n");
+				return -1;
+			}
+			if( escribirPuntuacion(f, usuario) == 1 )
+			{
+				printf("El puntaje fue escrito correctamente\n");
+				return 1;
+			}
+			else
+			{
+				printf("Imposible escribir el puntaje\n");
+			}
+		break;
+		case -1: //PERDIO
+			printf("El usuario ha perdido la partida. El puntaje no se escribirá\n");
+			break;
+		break;
+	}
 }

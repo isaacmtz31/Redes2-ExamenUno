@@ -59,7 +59,7 @@ struct addrinfo hints, *servinfo, *p;
 
     freeaddrinfo(servinfo); // all done with this structure
 
-    printf("\n Conexion establecida...\n");
+    printf("\nConexion establecida con el servidor...\n");
     //Hacer scanf
     int dificultad = 1;
     int aux = ntohs(dificultad);
@@ -82,6 +82,16 @@ struct addrinfo hints, *servinfo, *p;
          }
          printf("El usuario ha recibido la matriz: \n");
          imprimeMat(matriz, 9,9);
+       break;
+       case 2:
+       break;
+       case 3:
+       break;
+       case 4:
+        printf("Esperando scores\n");
+       break;
+       default:
+        printf("ERROR AL LEER OPCIÓN\n");
        break;
     }
 

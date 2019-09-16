@@ -13,14 +13,15 @@
 int main(int argc, char* argv[])
 {
   int sd,n,v=1,rv,op=0;
+  int status, statusx;
   socklen_t ctam;
   char s[INET6_ADDRSTRLEN], hbuf[NI_MAXHOST], sbuf[NI_MAXSERV];
 
-  FILE *f,*f1;
+  FILE *f;
   struct addrinfo hints, *servinfo, *p;
   struct sockaddr_storage their_addr; // connector's address
   struct stat st;
-  ctam= sizeof(their_addr);
+  ctam = sizeof(their_addr);
   memset(&hints, 0, sizeof (hints));  //indicio
   hints.ai_family = AF_INET6;    /* Allow IPv4 or IPv6  familia de dir*/
   hints.ai_socktype = SOCK_STREAM;
@@ -88,7 +89,6 @@ if (p == NULL)
     }//if
     if (getnameinfo((struct sockaddr *)&their_addr, sizeof(their_addr), hbuf, sizeof(hbuf), sbuf,sizeof(sbuf), NI_NUMERICHOST | NI_NUMERICSERV) == 0)
         printf("cliente conectado desde %s:%s\n", hbuf,sbuf);
-        f1 = fdopen(cd,"w+");
         struct linger linger;
             linger.l_onoff = 1;
             linger.l_linger = 30;
@@ -116,37 +116,82 @@ if (p == NULL)
         else
         {
           printf("La dificultad es: %d\n", dif );
-
           int ** matriz = NULL;
-          switch (dif) {
+          char * arch1 = "/home/isaacmtz/Documentos/scores.txt";
+          switch (dif)
+          {
             case 4: //Ver puntuaciones
+              if (f = fopen(arch1, "r+"))
+              {
+                if(stat(arch1,&st)!=0)
+                {
+                  printf("TTam arch: %ld \n", st.st_size);
+                }
 
+                long sz = st.st_size;
+                char msj[100];
+                char scores[sz];
+
+                memset(&msj,0,sizeof(msj));
+
+                while (feof(f) == 0)
+                {
+                  fgets(msj,100,f);
+                  strcat(scores, msj);
+                }
+                printf("\nLa cadena a enviar es:\n%s",scores);
+                enviados = write(cd,scores,sizeof(scores)+1);
+                if( enviados < 0 )
+                {
+                  perror("No se pudieron mandar las puntaciones\n");
+                  return 1;
+                }
+                fclose(f);
+              }else{
+                printf("Error al abrir el archivo\n");
+                fclose(f);
+              }
             break;
 
             case 1: //Principiante
               matriz = asignaMemoria(9,9);
               llenaMatrizRan(&(*matriz), 9, 9, 10);
               imprimeMat(matriz, 9,9);
-              for(int i = 0; i < 9 ; i++)
+              enviarMatriz(9, 9, cd, matriz);
+              //ESPERAMOS A QUE EL USUARIO TERMINE LA PARTIDA
+              printf("Esperando el termino de la partida\n", );
+              for(;;)
               {
-                for(int j = 0; j < 9; j++)
+                n = read(cd,&status,sizeof(status));
+                if( n < 0)
                 {
-                  int aux = ntohl(matriz[i][j]);
-                  enviados = write(cd,&aux,sizeof(aux));
+                  printf("No se pudo leer el estatus del jugador\n");
+                  return -1;
                 }
+                statusx = htonl(status);
+                ganarPerderPuntaje(statusx, cd, f);
+                break;
               }
+
             break;
             case 2: //Intermedio
               matriz = asignaMemoria(16,16);
               imprimeMat(matriz, 16,16);
               llenaMatrizRan(&(*matriz), 16, 16, 40);
-              for(int i = 0; i < 16 ; i++)
+              enviarMatriz(16, 16, cd, matriz);
+              //ESPERAMOS A QUE EL USUARIO TERMINE LA PARTIDA
+              printf("Esperando el termino de la partida\n", );
+              for(;;)
               {
-                for(int j = 0; j < 16; j++)
+                n = read(cd,&status,sizeof(status));
+                if( n < 0)
                 {
-                  int aux = htons(matriz[i][j]);
-                  enviados = write(cd,&aux,sizeof(aux));
+                  printf("No se pudo leer el estatus del jugador\n");
+                  return -1;
                 }
+                statusx = htonl(status);
+                ganarPerderPuntaje(statusx, cd, f);
+                break;
               }
             break;
 
@@ -154,13 +199,20 @@ if (p == NULL)
               matriz = asignaMemoria(16,30);
               imprimeMat(matriz, 16,30);
               llenaMatrizRan(&(*matriz), 16, 30, 99);
-              for(int i = 0; i < 16; i++)
+              enviarMatriz(16, 30, cd, matriz);
+              //ESPERAMOS A QUE EL USUARIO TERMINE LA PARTIDA
+              printf("Esperando el termino de la partida\n", );
+              for(;;)
               {
-                for(int j = 0; j < 30; j++)
+                n = read(cd,&status,sizeof(status));
+                if( n < 0)
                 {
-                  int aux = htons(matriz[i][j]);
-                  enviados = write(cd,&aux,sizeof(aux));
+                  printf("No se pudo leer el estatus del jugador\n");
+                  return -1;
                 }
+                statusx = htonl(status);
+                ganarPerderPuntaje(statusx, cd, f);
+                break;
               }
             break;
 

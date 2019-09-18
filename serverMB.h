@@ -4,6 +4,7 @@
 #include <time.h>
 #include <string.h>
 #include <unistd.h>
+
 //ESTA FUNCION ES UTIL PARA ASIGAR DE MANERA DINAMICA MEMORIA A LAS MATRICES
 int ** asignaMemoria(int filas, int columnas)
 {
@@ -150,11 +151,85 @@ int ** generarMatriz(int dif)
   return matriz;
 }
 
-//ENVIAMOS LA MATRIZ AL CLIENTE
-int enviarMatriz(int filas, int columnas, int cd, int ** matriz)
+
+
+int escribirPuntuacion(char ** score)
 {
+	//char * arch1 = "/home/imanol/Documentos/scores.txt";
+	FILE * f;
+	char * arch1 = "/home/isaacmtz/Documentos/scores.txt";
+	if (f = fopen(arch1, "r+"))
+	{
+		fseek(f, 0, SEEK_END );
+		if(fputs((*score), f) != -1)
+		{
+			fputc(10, f);
+			printf("OK\n");
+			fclose(f);
+			return 1;
+		}
+	}else{
+		printf("Error al abrir el archivo\n");
+		fclose(f);
+		return 0;
+	}
+}
+
+int ganarPerderPuntaje(char * usuario)
+{
+/*
+	if( escribirPuntuacion(usuario) == 1 )
+	{
+		printf("El puntaje fue escrito correctamente\n");
+		return 1;
+	}
+	else
+	{
+		printf("Imposible escribir el puntaje\n");
+	}*/
+	/*
+	int n;
+
+	switch (statusx)
+	{
+		case 0: // GANO //RECIBIMOS EL NOMBRE Y TIEMP
+
+			if( n < 0 )
+			{
+				printf("Error al recibir los datos del ganador\n");
+				return -1;
+			}
+			else
+			{
+				printf("TIEMPOUSR %s\n",usuario );
+				if( escribirPuntuacion(usuario) == 1 )
+				{
+					printf("El puntaje fue escrito correctamente\n");
+					return 1;
+				}
+				else
+				{
+					printf("Imposible escribir el puntaje\n");
+				}
+			}
+		break;
+
+		case 9: //PERDIO
+			printf("El usuario ha perdido la partida. El puntaje no se escribirá\n");
+			break;
+		break;
+	}*/
+}
+
+
+//ENVIAMOS LA MATRIZ AL CLIENTE
+int enviarMatriz(int filas, int columnas, int cd, int ** matriz, char * usuario)
+{
+	int prueba;
 	int aux;
 	int enviados;
+	int n;
+	//int m;
 	for(int i = 0; i < filas ; i++)
 	{
 		for(int j = 0; j < columnas; j++)
@@ -169,52 +244,33 @@ int enviarMatriz(int filas, int columnas, int cd, int ** matriz)
 			 }
 		}
 	}
-}
 
-int escribirPuntuacion(FILE * f, char * score)
-{
-	char * arch1 = "/home/imanol/Documentos/scores.txt";
-	if (f = fopen(arch1, "r+"))
+	printf("Esperando el termino de la partida PRUEBA\n");
+	n = read(cd,&prueba,sizeof(prueba));
+	if( n < 0)
 	{
-		if(fputs(score, f) != -1)
-		{
-			fclose(f);
-			return 1;
-		}
-	}else{
-		printf("Error al abrir el archivo\n");
-		fclose(f);
-		return 0;
+		printf("No se pudo leer el estatus del jugador\n");
+		return -1;
 	}
-}
 
-int ganarPerderPuntaje(int statusx, int cd, FILE *f)
-{
-	int n;
-	char usuario[50];
+	printf("EL ESTATUS FINAL ES %d\n", prueba);
 
-	switch (statusx)
-	{
-		case 1: // GANO //RECIBIMOS EL NOMBRE Y TIEMPO
-			n = read(cd, &usuario, sizeof(usuario));
-			if( n < 0 )
-			{
-				printf("Error al recibir los datos del ganador\n");
-				return -1;
-			}
-			if( escribirPuntuacion(f, usuario) == 1 )
-			{
-				printf("El puntaje fue escrito correctamente\n");
-				return 1;
-			}
+	if(prueba==0)
+ 	{
+		printf("NO PUES SI ENTRA\n" );
+		if((read(cd, usuario, sizeof(usuario))) == 0)
+		printf("EL socket anda cerrado\n");
+		else if((read(cd, usuario, sizeof(usuario))) < 0 )
+			printf("No se leyo nada\n");
 			else
-			{
-				printf("Imposible escribir el puntaje\n");
-			}
-		break;
-		case 0: //PERDIO
-			printf("El usuario ha perdido la partida. El puntaje no se escribirá\n");
-			break;
-		break;
+				{
+					read(cd, usuario, sizeof(usuario));
+					printf("USR %s\n", usuario);
+					escribirPuntuacion(&usuario);}
 	}
+	else
+	{
+		printf("NO GANO, ADIOS!\n");
+	}
+
 }

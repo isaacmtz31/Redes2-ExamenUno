@@ -101,7 +101,8 @@ if (p == NULL)
         int dif;
         n = read(cd,&dificultad,sizeof(dificultad));
         printf("\nSe recibieron %d bytes\n",n);
-        dif = htons(dificultad);
+	//printf("%d", dificultad);
+        dif = dificultad;
         if(n < 0)
         {
           perror("Error en funcion read()\n");
@@ -159,19 +160,19 @@ if (p == NULL)
               imprimeMat(matriz, 9,9);
               enviarMatriz(9, 9, cd, matriz);
               //ESPERAMOS A QUE EL USUARIO TERMINE LA PARTIDA
-              printf("Esperando el termino de la partida\n", );
-              for(;;)
-              {
+              printf("Esperando el termino de la partida\n");
+              //for(;;)              
                 n = read(cd,&status,sizeof(status));
                 if( n < 0)
                 {
                   printf("No se pudo leer el estatus del jugador\n");
                   return -1;
                 }
-                statusx = htonl(status);
-                ganarPerderPuntaje(statusx, cd, f);
+//                statusx = ntohl(status);
+		printf("status %d", status);
+                ganarPerderPuntaje(status, cd, f);
                 break;
-              }
+              
 
             break;
             case 2: //Intermedio
@@ -180,7 +181,7 @@ if (p == NULL)
               llenaMatrizRan(&(*matriz), 16, 16, 40);
               enviarMatriz(16, 16, cd, matriz);
               //ESPERAMOS A QUE EL USUARIO TERMINE LA PARTIDA
-              printf("Esperando el termino de la partida\n", );
+              printf("Esperando el termino de la partida\n");
               for(;;)
               {
                 n = read(cd,&status,sizeof(status));
@@ -189,7 +190,8 @@ if (p == NULL)
                   printf("No se pudo leer el estatus del jugador\n");
                   return -1;
                 }
-                statusx = htonl(status);
+                //statusx = ntohl(status);
+		statusx = status;
                 ganarPerderPuntaje(statusx, cd, f);
                 break;
               }
@@ -201,7 +203,7 @@ if (p == NULL)
               llenaMatrizRan(&(*matriz), 16, 30, 99);
               enviarMatriz(16, 30, cd, matriz);
               //ESPERAMOS A QUE EL USUARIO TERMINE LA PARTIDA
-              printf("Esperando el termino de la partida\n", );
+              printf("Esperando el termino de la partida\n");
               for(;;)
               {
                 n = read(cd,&status,sizeof(status));
@@ -210,7 +212,8 @@ if (p == NULL)
                   printf("No se pudo leer el estatus del jugador\n");
                   return -1;
                 }
-                statusx = htonl(status);
+                //statusx = ntohl(status);
+		statusx = status;
                 ganarPerderPuntaje(statusx, cd, f);
                 break;
               }

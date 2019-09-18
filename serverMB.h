@@ -159,7 +159,8 @@ int enviarMatriz(int filas, int columnas, int cd, int ** matriz)
 	{
 		for(int j = 0; j < columnas; j++)
 		{
-			 aux = ntohl(matriz[i][j]);
+			 //aux = htonl(matriz[i][j]);
+			aux = matriz[i][j];
 			 enviados = write(cd,&aux,sizeof(aux));
 			 if(enviados < 0)
 			 {
@@ -172,7 +173,7 @@ int enviarMatriz(int filas, int columnas, int cd, int ** matriz)
 
 int escribirPuntuacion(FILE * f, char * score)
 {
-	char * arch1 = "/home/isaacmtz/Documentos/scores.txt";
+	char * arch1 = "/home/imanol/Documentos/scores.txt";
 	if (f = fopen(arch1, "r+"))
 	{
 		if(fputs(score, f) != -1)
@@ -211,7 +212,7 @@ int ganarPerderPuntaje(int statusx, int cd, FILE *f)
 				printf("Imposible escribir el puntaje\n");
 			}
 		break;
-		case -1: //PERDIO
+		case 0: //PERDIO
 			printf("El usuario ha perdido la partida. El puntaje no se escribirá\n");
 			break;
 		break;
